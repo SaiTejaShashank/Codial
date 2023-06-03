@@ -1,4 +1,6 @@
 const Post =require('../models/post');
+const User = require('../models/user');
+
 module.exports.home = function(req,res){
 
     //console.log(req.cookies)
@@ -19,10 +21,16 @@ module.exports.home = function(req,res){
             path:'user'
         }
     }).then((posts)=>{
-        return res.render("home",{
-            title:"Codial | Home",
-            posts:posts
+        User.find({}).then((users)=>{
+            return res.render("home",{
+                title:"Codial | Home",
+                posts:posts,
+                all_users:users
+            })
+        }).catch((error)=>{
+            console.log("Error in fetching users all in home controller",error);
         })
+        
     }).catch((error)=>{console.log('Error in fetching posts --> Home Controller',error)})
     
 }

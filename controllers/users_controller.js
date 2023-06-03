@@ -2,9 +2,15 @@ const { response } = require('express');
 const User=require('../models/user');
 
 module.exports.profile=function(req,res){
-    return res.render("user_profile",{
-        title:"Profile"
+    User.findById(req.params.id).then((user)=>{
+        return res.render("user_profile",{
+            title:"User Profile",
+            profile_user:user
+        })
+    }).catch((error)=>{
+        console.log("Error in user controller profile",error);
     })
+    
 }
 
 module.exports.edit=function(req,res){
