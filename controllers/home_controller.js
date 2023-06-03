@@ -13,7 +13,12 @@ module.exports.home = function(req,res){
         console.log('Error in fetching posts ---> home controller',error)
     })*/
 
-    Post.find({}).populate('user').then((posts)=>{
+    Post.find({}).populate('user').populate({
+        path:'comments',
+        populate:{
+            path:'user'
+        }
+    }).then((posts)=>{
         return res.render("home",{
             title:"Codial | Home",
             posts:posts
