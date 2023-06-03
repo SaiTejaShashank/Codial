@@ -24,3 +24,22 @@ module.exports.create=function(req,res){
     })
     
 }
+
+module.exports.destroy = function(req,res){
+    //.id means converting the object id into string
+    Comment.findById(req.params.id).then((comment)=>{
+        if(comment.user == req.user.id){
+
+            let postId= comment.post;
+            comment.deleteOne();
+            Post.findByIdAndUpdate(postId,{$pull:{comments:req.params.id}}).then(()=>{
+                return res.redirect('back')
+            }).catch((error)=>{
+                console.log("Error in comments controller --> destroy",error)
+            })
+             }
+        else{
+            return res.redirect('back')
+        }
+    })
+}
