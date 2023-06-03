@@ -1,32 +1,38 @@
 const Post=require("../models/post")
 const Comment = require("../models/comment");
 
-module.exports.create=function(req,res){
+module.exports.create=async function(req,res){
 
-    Post.create({
-        content:req.body.content,
-        user:req.user._id
-    }).then((user)=>{
-        //console.log(user)
+    try{
+        await Post.create({
+            content:req.body.content,
+            user:req.user._id
+        });
         return res.redirect('back')
-    }).catch((error)=>{
-        if(error){
-            console.log("Error in creating a post");
+    }
+    catch(error){
+        console.log("Error in creating a post",error);
             return;
-        }
-    })
-    
+    }
 }
 
-module.exports.destroy = function(req,res){
+module.exports.destroy = async function(req,res){
     //.id means converting the object id into string
-    Post.findById(req.params.id).then((post)=>{
+
+    try{
+        let post=await Post.findById(req.params.id);
         if(post.user == req.user.id){
-            post.deleteOne();
-            Comment.deleteMany({post:req.params.id}).then(()=>{return res.redirect('back')}).catch((error)=>{console.log('error in posts controller delete comments',error)})
+            await post.deleteOne();
+            await Comment.deleteMany({post:req.params.id});
+            return res.redirect('back')
         }
         else{
             return res.redirect('back')
         }
-    })
+    }
+    catch(error){
+        console.log("Error in deleting a post",error);
+        return;
+    }
+    
 }
