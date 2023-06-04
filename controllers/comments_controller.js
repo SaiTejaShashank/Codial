@@ -14,12 +14,17 @@ module.exports.create=function(req,res){
                 //console.log(comment._id); check if it is comment
                 post.comments.push(comment._id);
                 post.save();
+
+                req.flash('success','Comment posted!');
+
                 res.redirect('/');
             }).catch((error)=>{
+                req.flash('error',error);
                 console.log('Error in comments controller adding comment',error);
             })
         }
     }).catch((error)=>{
+        req.flash('error',error);
         console.log('Error in comments controller getting post',error);
     })
     
@@ -33,12 +38,15 @@ module.exports.destroy = function(req,res){
             let postId= comment.post;
             comment.deleteOne();
             Post.findByIdAndUpdate(postId,{$pull:{comments:req.params.id}}).then(()=>{
+                req.flash('success','Comment deleted!');
                 return res.redirect('back')
             }).catch((error)=>{
+                req.flash('error',error);
                 console.log("Error in comments controller --> destroy",error)
             })
              }
         else{
+            req.flash('error','Not authorized to delete comment!');
             return res.redirect('back')
         }
     })
