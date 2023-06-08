@@ -28,6 +28,9 @@ app.use(sassMiddleware({
 app.use(express.urlencoded())
 app.use(cookieParser());
 
+//making uploads path available to browser to access profile images
+app.use('/uploads',express.static(__dirname+'/uploads'))
+
 app.use(express.static("./assets"));
 
 app.use(expressLayouts);
