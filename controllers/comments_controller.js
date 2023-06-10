@@ -1,32 +1,37 @@
 const Comment=require("../models/comment")
 const Post=require("../models/post");
 
-module.exports.create=function(req,res){
+const commentsMailer = require('../mailers/comments_mailer');
 
-    Post.findById(req.body.post).then((post)=>{
+module.exports.create=async function(req,res){
+
+    try{
+        let post =await Post.findById(req.body.post)
 
         if(post){
-            Comment.create({
+           let comment= await Comment.create({
                 content:req.body.content,
                 post:req.body.post,
                 user:req.user._id
-            }).then((comment)=>{
-                //console.log(comment._id); check if it is comment
-                post.comments.push(comment._id);
-                post.save();
-
-                req.flash('success','Comment posted!');
-
-                res.redirect('/');
-            }).catch((error)=>{
-                req.flash('error',error);
-                console.log('Error in comments controller adding comment',error);
             })
+
+            post.comments.push(comment._id);
+            post.save();
+
+            comment= await comment.populate('user')
+            commentsMailer.newComment(comment);
+
+            req.flash('success','Comment posted!');
+
+            res.redirect('/');
         }
-    }).catch((error)=>{
+
+    }
+    catch(error){
         req.flash('error',error);
-        console.log('Error in comments controller getting post',error);
-    })
+        console.log('Error in comments controller --> create',error);
+        return;
+    }
     
 }
 
